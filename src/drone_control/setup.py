@@ -24,7 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'swarm_first_mission = drone_control.drone_control.swarm_first_mission:main',
+            'swarm_first_mission = drone_control.swarm_first_mission:main', 
         ],
     },
 )
