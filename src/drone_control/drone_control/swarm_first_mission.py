@@ -20,7 +20,6 @@ class SwarmFirstMission(Node):
             '/fmu/in/offboard_control_mode',
             qos_profile
         )
-        
         self.offboard_control_mode_publisher_1 = self.create_publisher(
             OffboardControlMode,
             '/px4_1/fmu/in/offboard_control_mode',

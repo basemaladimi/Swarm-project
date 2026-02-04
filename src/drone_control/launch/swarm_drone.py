@@ -1,0 +1,93 @@
+import os
+from launch import LaunchDescription
+from launch.actions import ExecuteProcess, TimerAction
+from launch_ros.actions import Node
+
+def generate_launch_description():
+    """Launch multiple drone control nodes for swarm operation"""
+    
+    ld = LaunchDescription()
+    nodes = []
+    
+    #  Define Paths to the PX4 folder
+    home_dir = os.path.expanduser('~')
+    px4_dir = os.path.join(home_dir, 'PX4-Autopilot')
+    micro_xrce_agent_dir = os.path.join(home_dir, "Micro-XRCE-DDS-Agent")
+    qgc_dir = os.path.join(home_dir, "QGC")
+    
+    # Starting Micro XRCE Agent
+    manual_command_1 = (
+        "MicroXRCEAgent ",
+        "udp4 ",
+        "-p ",
+        "8888" 
+    )
+    nodes.append(ExecuteProcess(
+            cmd=[manual_command_1],
+            shell=True,
+            cwd=micro_xrce_agent_dir,
+            output='screen'
+        )   
+    )
+    
+    # Starting QGroundControl
+    manual_command_2 = (
+        "./QGroundControl.AppImage"
+    )
+    nodes.append(ExecuteProcess(
+            cmd=[manual_command_2],
+            shell=True,
+            cwd=qgc_dir,
+            output='screen'
+        )   
+    )
+    
+    # Starting gz and spwaning Drone 1
+    nodes.append(ExecuteProcess(
+        cmd=['make', 'px4_sitl', 'gz_x500'],
+        cwd=px4_dir,
+        output='screen'
+    ))
+    
+    # Starting gz and spwaning Drone 1
+    nodes.append(ExecuteProcess(
+        cmd=['make', 'px4_sitl', 'gz_x500'],
+        cwd=px4_dir,
+        output='screen'
+    ))
+    
+    # Spwaning Drone 2
+    manual_command_3 = (
+        "PX4_SYS_AUTOSTART=4001 "
+        "PX4_SIM_MODEL=gz_x500 "
+        "PX4_GZ_MODEL_POSE='0,2' "
+        "./build/px4_sitl_default/bin/px4 -i 1"
+    )
+    nodes.append(TimerAction(
+        period=15.0,
+        actions=[
+            ExecuteProcess(
+                cmd=[manual_command_3],
+                shell=True,
+                cwd=px4_dir,
+                output='screen'
+            )
+        ]
+    ))
+    
+    nodes.append(TimerAction(
+        period=40.0,
+        actions=[
+            Node(
+                package='drone_control',
+                executable='swarm_first_mission',
+                name='swarm_first_mission',
+                output='screen'
+            )
+        ]      
+    ))
+    
+    for node in nodes:
+        ld.add_action(node)
+        
+    return ld
