@@ -76,7 +76,7 @@ def generate_launch_description():
         "./build/px4_sitl_default/bin/px4 -i 1"
     )
     nodes.append(TimerAction(
-        period=15.0,
+        period=3.0,
         actions=[
             ExecuteProcess(
                 cmd=[manual_command_3],
@@ -95,7 +95,7 @@ def generate_launch_description():
         "./build/px4_sitl_default/bin/px4 -i 2"
     )
     nodes.append(TimerAction(
-        period=10.0,
+        period=3.0,
         actions=[
             ExecuteProcess(
                 cmd=[manual_command_4],
@@ -107,7 +107,7 @@ def generate_launch_description():
     ))
     
     nodes.append(TimerAction(
-        period=40.0,
+        period=25.0,
         actions=[
             Node(
                 package='drone_control',
