@@ -94,7 +94,7 @@ class SwarmFirstMission(Node):
         self.pub_occ_3.publish(occ)
         
         t1 = TrajectorySetpoint()
-        t1.position = [0.0, 0.0, -5.0]
+        t1.position = [0.0, 0.0, -10.0]
         self.pub_traj_1.publish(t1)
         self.pub_traj_2.publish(t1)
         self.pub_traj_3.publish(t1)
@@ -109,7 +109,7 @@ class SwarmFirstMission(Node):
         self.send_cmd(self.pub_cmd_2, VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 2, 1.0)
         self.send_cmd(self.pub_cmd_3, VehicleCommand.VEHICLE_CMD_COMPONENT_ARM_DISARM, 3, 1.0)
         self.get_logger().info("Taking off... Waiting 10 seconds.")
-        time.sleep(10.0)
+        time.sleep(15.0)
 
         # Form the Line (Using Global Reposition)
         self.get_logger().info("Phase 3: Moving to Line Formation")
@@ -131,10 +131,26 @@ class SwarmFirstMission(Node):
         self.send_reposition_cmd(self.pub_cmd_3, 3, d3_lat, d3_lon, current_alt)
         time.sleep(10.0)
         #  MOVE DRONE 1 FORWARD
-        self.get_logger().info("Moving Leader 1 Meter Forward")
+        self.get_logger().info("Moving to arrow head Formation")
         target_lat_1 = self.leader_lat 
-        target_lon_1 = self.leader_lon - (2.0 * m_to_deg)
-        self.send_reposition_cmd(self.pub_cmd_1, 1, target_lat_1, target_lon_1, current_alt)
+        target_lon_1 = self.leader_lon
+        self.send_reposition_cmd(self.pub_cmd_1, 1, target_lat_1, target_lon_1, current_alt + 2.5)
+        time.sleep(10.0)
+        self.get_logger().info("Moving to V Formation")
+        target_lat_1 = self.leader_lat 
+        target_lon_1 = self.leader_lon
+        self.send_reposition_cmd(self.pub_cmd_1, 1, target_lat_1, target_lon_1, current_alt - 2.5)
+        time.sleep(10.0)
+        self.get_logger().info("Moving up to 20 m")
+        self.send_reposition_cmd(self.pub_cmd_2, 2, d2_lat, d2_lon, current_alt + 10.0)
+        self.send_reposition_cmd(self.pub_cmd_3, 3, d3_lat, d3_lon, current_alt + 10.0)
+        self.send_reposition_cmd(self.pub_cmd_1, 1, target_lat_1, target_lon_1, current_alt + 10.0)
+        time.sleep(15.0)
+        self.get_logger().info("Landing")
+        self.send_cmd(self.pub_cmd_1, VehicleCommand.VEHICLE_CMD_NAV_LAND, 1, 1.0, 6.0)
+        self.send_cmd(self.pub_cmd_2, VehicleCommand.VEHICLE_CMD_NAV_LAND, 2, 1.0, 6.0)
+        self.send_cmd(self.pub_cmd_3, VehicleCommand.VEHICLE_CMD_NAV_LAND, 3, 1.0, 6.0)
+        
         
         self.get_logger().info("Leader moving. Mission Complete.")
 
